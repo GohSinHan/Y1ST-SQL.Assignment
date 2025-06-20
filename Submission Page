@@ -1,0 +1,32 @@
+{% block title %}Submission Page{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Submission</h2>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/sql_submit">
+        <div>
+            <label for="Assessment">Assessment ID:</label>
+            <input type="text" name="aid" id="Assessment" required>
+        </div>
+
+        <div>
+            <label for="Task">Task ID:</label>
+            <input type="text" name="tid" id="Task" required>
+        </div>
+
+        <div>
+            <label for="Code">Code:</label>
+            <textarea id="Code" name="code" rows = "40" cols = "80"></textarea>
+        </div>
+
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
