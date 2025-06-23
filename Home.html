@@ -1,0 +1,26 @@
+{% block title %}<h2>Home Page</h2>{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="GET" action="/sql_submit">
+        <div>
+            <button type="submit">Submission Page</button>
+        </div>
+    </form><br>
+
+    <form method="GET" action="/sql_score">
+        <div>
+            <button type="submit">Score Page</button>
+        </div>
+    </form><br>
+
+    <form method="GET" action="/sql_leaderboard">
+        <div>
+            <button type="submit">Leaderboard Page</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
