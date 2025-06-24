@@ -102,3 +102,53 @@ def logout():
     # Clear Flask session and redirect
     session.clear()
     return redirect('/login')
+
+@app.route('/change-password', methods=['GET', 'POST'])
+def change_password():
+    # 1. Check new vs confirm, 2. Check current pwd, 3. Sucess
+    if 'student_id' not in session:
+        return redirect('/login')
+
+    error = None
+    msg = None
+
+    if request.method == "POST":
+        # Hash password
+        m = hashlib.md5()
+        m.update(request.form['txt_current_password'].encode('UTF-8'))
+        current_password = m.hexdigest()
+
+        # Get current password
+        try:
+            cnx = mysql.connector.connect(option_files = config_path)
+            cursor = cnx.cursor()
+            cursor.execute(
+                'SELECT Password_Hash FROM Student WHERE Student_ID=%s',
+                (session['student_id'],)
+            )
+            result = cursor.fetchone()
+
+            if not result or result[0] != current_password:
+                error = "[ERR] Current password is incorrect!"
+            elif(request.form['txt_new_password'] != request.form['txt_confirm_password']):
+                error = "[ERR] Password do not match!"
+            else:
+                encrypt_2 = hashlib.md5()
+                encrypt_2.update(request.form['txt_new_password'].encode('UTF-8'))
+                new_password = encrypt_2.hexdigest()
+
+                # Update password
+                cursor.execute(
+                    'UPDATE Student SET Password_Hash=%s WHERE Student_ID=%s',
+                    (new_password, session['student_id'])
+                )
+                cnx.commit()
+                msg = "Password changed successfully!"
+
+            # Close connection
+            cursor.close()
+            cnx.close()
+        except Exception as e:
+            print("Login error:", e)
+            error = "Internal server error."
+    return render_template("change-password.html", error=error, success=msg)
