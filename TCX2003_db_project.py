@@ -153,7 +153,7 @@ def change_password():
             error = "Internal server error."
     return render_template("change-password.html", error=error, success=msg)
 
-@app.route("/sql_submit", methods=['GET','POST'])
+@app.route("/submit-sql", methods=['GET','POST'])
 def sql_submit():
     if request.method == 'POST':
         aid = int(request.form['aid'])
