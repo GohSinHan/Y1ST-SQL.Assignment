@@ -1,0 +1,35 @@
+{% block title %}<h2>Submission Page</h2>{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h>Please submit your assessment here:</h><br><br>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/sql_submit">
+        <div>
+            <label for="Assessment">Assessment ID:</label>
+            <input type="text" name="aid" id="Assessment" required>
+        </div>
+
+        <div>
+            <label for="Task">Task ID:</label>
+            <input type="text" name="tid" id="Task" required>
+        </div>
+
+        <div>
+            <label for="Code">Code:</label>
+            <textarea id="Code" name="code" rows = "40" cols = "80"></textarea>
+        </div>
+
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+    <form method="POST" action="/dashboard">
+        <button type="submit">Return to home page</button>
+    </form>
+</div>
+{% endblock %}
