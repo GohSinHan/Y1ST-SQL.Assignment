@@ -152,3 +152,18 @@ def change_password():
             print("Login error:", e)
             error = "Internal server error."
     return render_template("change-password.html", error=error, success=msg)
+
+@app.route("/sql_submit", methods=['GET','POST'])
+def sql_submit():
+    if request.method == 'POST':
+        aid = int(request.form['aid'])
+        tid = int(request.form['tid'])
+        code = request.form['code']
+        cnx = mysql.connector.connect(option_files = config_path)
+        cursor = cnx.cursor()
+        result = cursor.callproc("submit_sql", (session['number'], aid, tid, code, ''))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return render_template('submit_result.html', username=result[4], aid=aid, tid=tid, code=code)
+    return render_template('submit.html')
