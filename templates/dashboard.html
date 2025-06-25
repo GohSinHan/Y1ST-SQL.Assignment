@@ -77,7 +77,7 @@
         <a href="/logout">Sign Out</a>
     </div>
 
-    <h1>Welcome, Student!</h1>
+    <h1>Welcome{% if student_name %}, {{ student_name }}{% endif %}!</h1>
 
     <div class="dashboard-grid">
         <div class="dashboard-item">

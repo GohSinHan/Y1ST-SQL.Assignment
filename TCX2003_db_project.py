@@ -79,7 +79,26 @@ def dashboard():
     if 'student_id' not in session:
         return redirect('/login')
 
-    return render_template("dashboard.html")
+    student_name = None
+
+    try:
+        cnx = mysql.connector.connect(option_files = config_path)
+        cursor = cnx.cursor()
+        cursor.execute(
+            'SELECT First_Name, Last_Name FROM Student WHERE Student_ID = %s',
+            (session['student_id'],)
+        )
+        result = cursor.fetchone()
+
+        if result:
+            student_name = f'{result[0]} {result[1]}'
+
+        cursor.close()
+        cnx.close()
+    except Exception as e:
+        print('Error:', e)
+
+    return render_template("dashboard.html", student_name=student_name)
 
 @app.route('/logout')
 def logout():
