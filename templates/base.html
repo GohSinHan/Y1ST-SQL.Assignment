@@ -1,0 +1,24 @@
+<!-- base.html -->
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+    </style>
+    {% block head_extra %} {% endblock %}
+</head>
+<body>
+  {% include "common.html" %}  <!-- Common navbar here -->
+
+  <main>
+    {% block content %}
+    <!-- Unique page content goes here -->
+    {% endblock %}
+  </main>
+</body>
+</html>

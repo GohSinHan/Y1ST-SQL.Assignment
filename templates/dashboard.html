@@ -1,17 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "base.html" %}
+
+{% block head_extra %}
     <meta charset="UTF-8">
     <title>Student Dashboard</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f8f9fa;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
-
         .top-bar {
             text-align: right;
             padding: 20px 40px 0 0;
@@ -71,12 +63,9 @@
             color: #0056b3;
         }
     </style>
-</head>
-<body>
-    <div class="top-bar">
-        <a href="/logout">Sign Out</a>
-    </div>
+{% endblock%}
 
+{% block content %}
     <h1>Welcome{% if student_name %}, {{ student_name }}{% endif %}!</h1>
 
     <div class="dashboard-grid">
@@ -100,6 +89,4 @@
             <a href="/change-password">Change Password</a>
         </div>
     </div>
-
-</body>
-</html>
+{% endblock %}
