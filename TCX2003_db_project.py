@@ -263,7 +263,7 @@ def view_score():
         cursor = cnx.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT Aid, Tid, Code, Submitted_At, Score
+            SELECT Aid, Tid, Code, Score, Submitted_At
             FROM Submission
             WHERE Student_ID = %s
             ORDER BY Submitted_At DESC
