@@ -1,0 +1,28 @@
+<h2>Your Submission History</h2>
+
+<table border="1" cellpadding="8">
+  <tr>
+    <th>Username</th>
+    <th>Assessment</th>
+    <th>Task</th>
+    <th>Attempt</th>
+    <th>Score</th>
+    <th>Submitted At</th>
+    <th>Status</th>
+  </tr>
+  {% for row in submissions %}
+  <tr>
+    <td>{{ row.username }}</td>
+    <td>{{ row.assessment_title }}</td>
+    <td>{{ row.task_title }}</td>
+    <td>{{ row.attempt_number }}</td>
+    <td>{{ row.score }}</td>
+    <td>{{ row.submit_at }}</td>
+    <td>{{ row.status }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% if submissions|length == 0 %}
+  <p>No submissions found yet.</p>
+{% endif %}
