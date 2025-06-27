@@ -2,19 +2,19 @@
 
 <table border="1" cellpadding="8">
   <tr>
-    <th>Assessment ID</th>
-    <th>Tasks ID</th>
-    <th>Code</th>
-    <th>Submitted At</th>
+    <th>Assessment</th>
+    <th>Task</th>
+    <th>Submitted Answer</th>
     <th>Score</th>
+    <th>Submitted At</th>
   </tr>
   {% for row in submissions %}
   <tr>
     <td>{{ row.Aid }}</td>
     <td>{{ row.Tid }}</td>
     <td>{{ row.Code }}</td>
-    <td>{{ row.Submitted_At }}</td>
     <td>{{ row.Score }}</td>
+    <td>{{ row.Submitted_At }}</td>
   </tr>
   {% endfor %}
 </table>
