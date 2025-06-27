@@ -33,7 +33,7 @@ def login():
         try:
             status_msg = "Attempting DB connection ... "
             cnx = mysql.connector.connect(
-                host="ziadesouza.mysql.pythonanywhere-services.com",           # or "yourusername.mysql.pythonanywhere-services.com" on PythonAnywhere
+                host="ziadesouza.mysql.pythonanywhere-services.com",
                 user="ziadesouza",
                 password="thinkpad",
                 database="ziadesouza$default"
