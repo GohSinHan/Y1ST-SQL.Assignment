@@ -2,23 +2,19 @@
 
 <table border="1" cellpadding="8">
   <tr>
-    <th>Username</th>
-    <th>Assessment</th>
-    <th>Task</th>
-    <th>Attempt</th>
-    <th>Score</th>
+    <th>Assessment ID</th>
+    <th>Tasks ID</th>
+    <th>Code</th>
     <th>Submitted At</th>
-    <th>Status</th>
+    <th>Score</th>
   </tr>
   {% for row in submissions %}
   <tr>
-    <td>{{ row.username }}</td>
-    <td>{{ row.assessment_title }}</td>
-    <td>{{ row.task_title }}</td>
-    <td>{{ row.attempt_number }}</td>
-    <td>{{ row.score }}</td>
-    <td>{{ row.submit_at }}</td>
-    <td>{{ row.status }}</td>
+    <td>{{ row.Aid }}</td>
+    <td>{{ row.Tid }}</td>
+    <td>{{ row.Code }}</td>
+    <td>{{ row.Submitted_At }}</td>
+    <td>{{ row.Score }}</td>
   </tr>
   {% endfor %}
 </table>
