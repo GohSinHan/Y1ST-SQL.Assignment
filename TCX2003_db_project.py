@@ -172,17 +172,30 @@ def change_password():
             error = "Internal server error."
     return render_template("change-password.html", error=error, success=msg)
 
-@app.route("/submit-sql", methods=['GET','POST'])
+@app.route("/submit-sql", methods=['GET', 'POST'])
 def sql_submit():
     if request.method == 'POST':
         aid = int(request.form['aid'])
         tid = int(request.form['tid'])
         code = request.form['code']
-        cnx = mysql.connector.connect(option_files = config_path)
+
+        # Connect to the database
+        cnx = mysql.connector.connect(option_files=config_path)
         cursor = cnx.cursor()
-        result = cursor.callproc("submit_sql", (session['number'], aid, tid, code, ''))
+
+        # Call the stored procedure (now named submission_proc)
+        result = cursor.callproc("submission_proc", (session['session_token'], aid, tid, code, None))
+
+        # Commit and close
         cnx.commit()
         cursor.close()
         cnx.close()
-        return render_template('submit_result.html', username=result[4], aid=aid, tid=tid, code=code)
+
+        # result[4] is the OUT parameter: student_id
+        return render_template('submit-result.html',
+                               student_id=result[4],  # student_id
+                               aid=aid,
+                               tid=tid,
+                               code=code)
+
     return render_template('submit.html')
