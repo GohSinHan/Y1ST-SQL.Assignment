@@ -263,7 +263,7 @@ def view_score():
         cursor = cnx.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT Aid, Tid, Code, Submitted_At, Score
+            SELECT Aid, Tid, Code, Score, Submitted_At
             FROM Submission
             WHERE Student_ID = %s
             ORDER BY Submitted_At DESC
@@ -276,6 +276,41 @@ def view_score():
 
     except Exception as e:
         return f"Error: {e}"
+
+@app.route('/export-score')
+def export_score():
+    if 'student_id' not in session:
+        return redirect('/login')
+
+    try:
+        cnx = mysql.connector.connect(option_files=config_path)
+        cursor = cnx.cursor()
+        cursor.execute('''
+            SELECT A.Title, T.Tid, S.Score, S.Submitted_At
+            FROM Submission S
+            JOIN Tasks T ON S.Tid = T.Tid AND S.Aid = T.Aid
+            JOIN Assessment A ON T.Aid = A.Aid
+            WHERE S.Student_ID = %s
+        ''', (session['student_id'],))
+        rows = cursor.fetchall()
+        cursor.close()
+        cnx.close()
+    except Exception as e:
+        return f"Error: {e}"
+
+    from io import StringIO
+    import csv
+    from flask import make_response
+
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Assignment Title', 'Task ID', 'Score', 'Submitted At'])
+    writer.writerows(rows)
+
+    response = make_response(output.getvalue())
+    response.headers['Content-Disposition'] = 'attachment; filename=scores.csv'
+    response.headers['Content-Type'] = 'text/csv'
+    return response
 
 @app.route("/submit-sql", methods=['GET','POST'])
 def sql_submit():
