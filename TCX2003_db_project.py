@@ -180,9 +180,9 @@ def sql_submit():
         code = request.form['code']
         cnx = mysql.connector.connect(option_files = config_path)
         cursor = cnx.cursor()
-        result = cursor.callproc("submit_sql", (session['number'], aid, tid, code, ''))
+        result = cursor.callproc("submit_sql", (session['session_token'], aid, tid, code, ''))
         cnx.commit()
         cursor.close()
         cnx.close()
-        return render_template('submit_result.html', username=result[4], aid=aid, tid=tid, code=code)
+        return render_template('submit-result.html', Email=result[4], aid=aid, tid=tid, code=code)
     return render_template('submit.html')
