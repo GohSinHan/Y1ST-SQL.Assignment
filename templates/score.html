@@ -1,73 +1,24 @@
-{% extends "base.html" %}
+<h2>Your Submission History</h2>
 
-{% block head_extra %}
-  <title>View Score</title>
-  <style>
-    table {
-      margin: 40px auto;
-      background: #fff;
-      border-collapse: collapse;
-      width: 90%;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    th {
-      background-color: #343a40;
-      color: white;
-    }
-    td, th {
-      padding: 10px;
-      text-align: center;
-    }
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-        .header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 30px auto 10px;
-      width: 90%;
-    }
-    .header-row h2 {
-      margin: 0;
-    }
-    .btn {
-      background-color: #007bff;
-      color: white;
-      padding: 8px 16px;
-      text-decoration: none;
-      border-radius: 4px;
-    }
-    .btn:hover {
-      background-color: #0056b3;
-    }
-  </style>
-{% endblock %}
+<table border="1" cellpadding="8">
+  <tr>
+    <th>Assessment ID</th>
+    <th>Tasks ID</th>
+    <th>Code</th>
+    <th>Submitted At</th>
+    <th>Score</th>
+  </tr>
+  {% for row in submissions %}
+  <tr>
+    <td>{{ row.Aid }}</td>
+    <td>{{ row.Tid }}</td>
+    <td>{{ row.Code }}</td>
+    <td>{{ row.Submitted_At }}</td>
+    <td>{{ row.Score }}</td>
+  </tr>
+  {% endfor %}
+</table>
 
-{% block content %}
-    <h2>Your Submission History</h2>
-    <table border="1" cellpadding="8">
-      <tr>
-        <th>Assessment</th>
-        <th>Task</th>
-        <th>Submitted Answer</th>
-        <th>Score</th>
-        <th>Submitted At</th>
-      </tr>
-      {% for row in submissions %}
-      <tr>
-        <td>{{ row.Aid }}</td>
-        <td>{{ row.Tid }}</td>
-        <td>{{ row.Code }}</td>
-        <td>{{ row.Score }}</td>
-        <td>{{ row.Submitted_At }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-
-    {% if submissions|length == 0 %}
-        <p>No submissions found yet.</p>
-    {% else %}
-        <a href="/export-score" class="btn">Export to CSV</a>
-    {% endif %}
-{% endblock %}
+{% if submissions|length == 0 %}
+  <p>No submissions found yet.</p>
+{% endif %}
