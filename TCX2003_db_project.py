@@ -312,18 +312,30 @@ def export_score():
     response.headers['Content-Type'] = 'text/csv'
     return response
 
-@app.route("/submit-sql", methods=['GET','POST'])
+@app.route("/submit-sql", methods=['GET', 'POST'])
 def sql_submit():
     if request.method == 'POST':
         aid = int(request.form['aid'])
         tid = int(request.form['tid'])
         code = request.form['code']
-        cnx = mysql.connector.connect(option_files=config_path)
 
+        # Connect to the database
+        cnx = mysql.connector.connect(option_files=config_path)
         cursor = cnx.cursor()
-        result = cursor.callproc("submit_sql", (session['session_token'], aid, tid, code, ''))
+
+        # Call the stored procedure (now named submission_proc)
+        result = cursor.callproc("submission_proc", (session['session_token'], aid, tid, code, None))
+
+        # Commit and close
         cnx.commit()
         cursor.close()
         cnx.close()
-        return render_template('submit-result.html', Email=result[4], aid=aid, tid=tid, code=code)
+
+        # result[4] is the OUT parameter: Email
+        return render_template('submit-result.html',
+                               Email=result[4],  # Email
+                               aid=aid,
+                               tid=tid,
+                               code=code)
+
     return render_template('submit.html')
