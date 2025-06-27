@@ -32,21 +32,15 @@ def login():
 
         try:
             status_msg = "Attempting DB connection ... "
-            cnx = mysql.connector.connect(
-                host="ziadesouza.mysql.pythonanywhere-services.com",
-                user="ziadesouza",
-                password="thinkpad",
-                database="ziadesouza$default"
-            )
+            cnx = mysql.connector.connect(option_files = config_path)
             status_msg += "Connection successful"
 
             cursor = cnx.cursor()
             status_msg += "Cursor Created"
             cursor.execute(
-                'SELECT username FROM students WHERE username=%s AND password_hash=%s',
+                'SELECT Student_ID FROM Student WHERE Email=%s AND Password_Hash=%s',
                 (user_name, password)
             )
-
             result = cursor.fetchone()
 
             if(result):
@@ -193,12 +187,7 @@ def submit():
 
         try:
             # Connect to DB
-            cnx = mysql.connector.connect(
-                host="ziadesouza.mysql.pythonanywhere-services.com",
-                user="ziadesouza",
-                password="thinkpad",
-                database="ziadesouza$default"
-            )
+            cnx = mysql.connector.connect(option_files=config_path)
             cursor = cnx.cursor()
 
             # Get model answer and due date
@@ -251,12 +240,7 @@ def submit():
 
     else:
         # GET method: show available assessments/tasks
-        cnx = mysql.connector.connect(
-                host="ziadesouza.mysql.pythonanywhere-services.com",
-                user="ziadesouza",
-                password="thinkpad",
-                database="ziadesouza$default"
-            )
+        cnx = mysql.connector.connect(option_files=config_path)
         cursor = cnx.cursor()
 
         cursor.execute("SELECT aid, title FROM assessments")
@@ -267,7 +251,6 @@ def submit():
 
         return render_template('submit.html', assessments=assessments, tasks=tasks)
 
-
 @app.route("/view-score")
 def view_score():
     if 'student_id' not in session:
@@ -276,26 +259,17 @@ def view_score():
     username = session['student_id']
 
     try:
-        cnx = mysql.connector.connect(
-            host="ziadesouza.mysql.pythonanywhere-services.com",
-            user="ziadesouza",
-            password="thinkpad",
-            database="ziadesouza$default"
-        )
+        cnx = mysql.connector.connect(option_files=config_path)
         cursor = cnx.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT s.username, s.aid AS assessment, s.tid AS task,
-                   s.attempt_number AS test_case, s.score,
-                   a.due_date, s.submit_at AS submit_date,
-                   s.code AS submitted_code
-            FROM submissions s
-            JOIN assessments a ON s.aid = a.aid
-            WHERE s.username = %s
-            ORDER BY s.submit_at DESC
+            SELECT Aid, Tid, Code, Submitted_At, Score
+            FROM Submission
+            WHERE Student_ID = %s
+            ORDER BY Submitted_At DESC
         """, (username,))
 
-        rows = cursor.fetchall()
+        rows = cursor.fetchall() or []
         cnx.close()
 
         return render_template("score.html", submissions=rows)
@@ -303,22 +277,18 @@ def view_score():
     except Exception as e:
         return f"Error: {e}"
 
-# @app.route("/submit-sql", methods=['GET','POST'])
-# def sql_submit():
-#     if request.method == 'POST':
-#         aid = int(request.form['aid'])
-#         tid = int(request.form['tid'])
-#         code = request.form['code']
-#         cnx = mysql.connector.connect(
-#                 host="ziadesouza.mysql.pythonanywhere-services.com",
-#                 user="ziadesouza",
-#                 password="thinkpad",
-#                 database="ziadesouza$default"
-#             )
-#         cursor = cnx.cursor()
-#         result = cursor.callproc("submit_sql", (session['number'], aid, tid, code, ''))
-#         cnx.commit()
-#         cursor.close()
-#         cnx.close()
-#         return render_template('submit_result.html', username=result[4], aid=aid, tid=tid, code=code)
-#     return render_template('submit.html')
+@app.route("/submit-sql", methods=['GET','POST'])
+def sql_submit():
+    if request.method == 'POST':
+        aid = int(request.form['aid'])
+        tid = int(request.form['tid'])
+        code = request.form['code']
+        cnx = mysql.connector.connect(option_files=config_path)
+
+        cursor = cnx.cursor()
+        result = cursor.callproc("submit_sql", (session['number'], aid, tid, code, ''))
+        cnx.commit()
+        cursor.close()
+        cnx.close()
+        return render_template('submit_result.html', username=result[4], aid=aid, tid=tid, code=code)
+    return render_template('submit.html')
