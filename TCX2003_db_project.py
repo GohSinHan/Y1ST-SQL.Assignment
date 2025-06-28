@@ -2,8 +2,10 @@ from flask import Flask, render_template, request, redirect, session
 import mysql.connector
 import hashlib
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+import sqlparse
+from difflib import SequenceMatcher
 # import logging # Write logs in PythonAnywhere
 
 app = Flask(__name__)
@@ -183,7 +185,7 @@ def submit():
         aid = request.form['aid']
         tid = request.form['tid']
         student_sql = request.form['code']
-        submit_time = datetime.now()
+        submit_time = datetime.utcnow() + timedelta(hours=8) # Original implementation of datetime.now() indicated 8 hours behind SG time.
 
         try:
             # Connect to DB
@@ -197,19 +199,7 @@ def submit():
             cursor.execute("SELECT due_date FROM Assessment WHERE aid = %s", (aid,))
             due_date = cursor.fetchone()[0]
 
-            # Run model answer and student answer on test DB
-            test_cursor = cnx.cursor()
-            test_cursor.execute(model_answer)
-            expected_result = test_cursor.fetchall()
-
-            test_cursor.execute(student_sql)
-            student_result = test_cursor.fetchall()
-
-            # Compare results (simple version)
-            if student_result == expected_result:
-                raw_score = 100
-            else:
-                raw_score = 60  # You can use more advanced scoring later
+            raw_score = calculate_similarity_preserve_case_names(model_answer, student_sql)
 
             # Check for lateness
             if submit_time > due_date:
@@ -311,3 +301,21 @@ def export_score():
     response.headers['Content-Disposition'] = 'attachment; filename=scores.csv'
     response.headers['Content-Type'] = 'text/csv'
     return response
+
+# Helper Fn
+def normalize_sql_keywords_only(query):
+    parsed = sqlparse.parse(query)[0]
+    tokens = []
+
+    for token in parsed.tokens:
+        if token.ttype in sqlparse.tokens.Keyword:
+            tokens.append(token.value.upper())  # normalize keyword
+        else:
+            tokens.append(token.value)  # preserve case for table names etc.
+
+    return ''.join(tokens)
+
+def calculate_similarity_preserve_case_names(q1, q2):
+    norm_q1 = normalize_sql_keywords_only(q1)
+    norm_q2 = normalize_sql_keywords_only(q2)
+    return SequenceMatcher(None, norm_q1.strip(), norm_q2.strip()).ratio()
