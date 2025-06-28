@@ -220,7 +220,7 @@ def submit():
             # Find current attempt number
             cursor.execute("""
                 SELECT COUNT(*) FROM Submission
-                WHERE username = %s AND aid = %s AND tid = %s
+                WHERE Student_ID = %s AND aid = %s AND tid = %s
             """, (username, aid, tid))
             attempt_number = cursor.fetchone()[0] + 1
 
