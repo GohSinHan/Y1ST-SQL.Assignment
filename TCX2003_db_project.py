@@ -191,10 +191,10 @@ def submit():
             cursor = cnx.cursor()
 
             # Get model answer and due date
-            cursor.execute("SELECT model_answer FROM tasks WHERE tid = %s", (tid,))
+            cursor.execute("SELECT model_answer FROM Tasks WHERE tid = %s", (tid,))
             model_answer = cursor.fetchone()[0]
 
-            cursor.execute("SELECT due_date FROM assessments WHERE aid = %s", (aid,))
+            cursor.execute("SELECT due_date FROM Assessment WHERE aid = %s", (aid,))
             due_date = cursor.fetchone()[0]
 
             # Run model answer and student answer on test DB
@@ -219,14 +219,14 @@ def submit():
 
             # Find current attempt number
             cursor.execute("""
-                SELECT COUNT(*) FROM submissions
+                SELECT COUNT(*) FROM Submission
                 WHERE username = %s AND aid = %s AND tid = %s
             """, (username, aid, tid))
             attempt_number = cursor.fetchone()[0] + 1
 
             # Insert submission
             cursor.execute("""
-                INSERT INTO submissions (username, aid, tid, code, submit_at, attempt_number, score)
+                INSERT INTO Submission (Student_ID, Aid, Tid, Code, Submitted_At, Attempt_No, Score)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             """, (username, aid, tid, student_sql, submit_time, attempt_number, final_score))
 
@@ -243,10 +243,10 @@ def submit():
         cnx = mysql.connector.connect(option_files=config_path)
         cursor = cnx.cursor()
 
-        cursor.execute("SELECT aid, title FROM assessments")
+        cursor.execute("SELECT aid, title FROM Assessment")
         assessments = cursor.fetchall()
 
-        cursor.execute("SELECT tid, title FROM tasks")
+        cursor.execute("SELECT tid FROM Tasks")
         tasks = cursor.fetchall()
 
         return render_template('submit.html', assessments=assessments, tasks=tasks)
@@ -311,31 +311,3 @@ def export_score():
     response.headers['Content-Disposition'] = 'attachment; filename=scores.csv'
     response.headers['Content-Type'] = 'text/csv'
     return response
-
-@app.route("/submit-sql", methods=['GET', 'POST'])
-def sql_submit():
-    if request.method == 'POST':
-        aid = int(request.form['aid'])
-        tid = int(request.form['tid'])
-        code = request.form['code']
-
-        # Connect to the database
-        cnx = mysql.connector.connect(option_files=config_path)
-        cursor = cnx.cursor()
-
-        # Call the stored procedure (now named submission_proc)
-        result = cursor.callproc("submission_proc", (session['session_token'], aid, tid, code, None))
-
-        # Commit and close
-        cnx.commit()
-        cursor.close()
-        cnx.close()
-
-        # result[4] is the OUT parameter: Email
-        return render_template('submit-result.html',
-                               Email=result[4],  # Email
-                               aid=aid,
-                               tid=tid,
-                               code=code)
-
-    return render_template('submit.html')
