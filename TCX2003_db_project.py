@@ -302,6 +302,56 @@ def export_score():
     response.headers['Content-Type'] = 'text/csv'
     return response
 
+@app.route('/leaderboard')
+def leaderboard():
+    try:
+        cnx = mysql.connector.connect(option_files=config_path)
+        cursor = cnx.cursor(dictionary=True)
+
+        query = """
+        SELECT s.Student_ID, CONCAT(st.First_Name, ' ', st.Last_Name) AS name,
+               ROUND(AVG(s.Score), 2) AS avg_score
+        FROM Submission s
+        JOIN (
+            SELECT Student_ID, Aid, Tid, MAX(Score) AS MaxScore
+            FROM Submission
+            GROUP BY Student_ID, Aid, Tid
+        ) best
+        ON s.Student_ID = best.Student_ID
+           AND s.Aid = best.Aid
+           AND s.Tid = best.Tid
+           AND s.Score = best.MaxScore
+        JOIN Student st ON s.Student_ID = st.Student_ID
+        GROUP BY s.Student_ID
+        ORDER BY avg_score DESC
+        LIMIT 5;
+        """
+
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        # Rank calculation with tie handling
+        leaderboard = []
+        last_score = None
+        rank = 0
+        actual_position = 0
+
+        for row in results:
+            actual_position += 1
+            if row['avg_score'] != last_score:
+                rank = actual_position
+            leaderboard.append({
+                'rank': rank,
+                'name': row['name'],
+                'score': row['avg_score']
+            })
+            last_score = row['avg_score']
+
+        return render_template('leaderboard.html', leaderboard=leaderboard)
+
+    except Exception as e:
+        return f"Error: {e}"
+
 # Helper Fn
 def normalize_sql_keywords_only(query):
     parsed = sqlparse.parse(query)[0]

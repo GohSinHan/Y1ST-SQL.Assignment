@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+  <title>Leaderboard</title>
+  <style>
+    .leaderboard-container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    .leaderboard-title {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .rank-icon {
+      font-size: 1.3em;
+    }
+
+    .rank-1 { color: gold; }
+    .rank-2 { color: silver; }
+    .rank-3 { color: #cd7f32; } /* Bronze */
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="leaderboard-container">
+    <div class="leaderboard-title">🏆 Top 5 Students Leaderboard</div>
+    <table>
+      <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Score</th>
+      </tr>
+      {% for student in leaderboard %}
+      <tr>
+        <td>
+          {% if student.rank == 1 %}
+            <span class="rank-icon rank-1">🥇</span>
+          {% elif student.rank == 2 %}
+            <span class="rank-icon rank-2">🥈</span>
+          {% elif student.rank == 3 %}
+            <span class="rank-icon rank-3">🥉</span>
+          {% else %}
+            {{ student.rank }}
+          {% endif %}
+        </td>
+        <td>{{ student.name }}</td>
+        <td>{{ student.score }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endblock %}
