@@ -1,35 +1,41 @@
-{% block title %}<h2>Submission Page</h2>{% endblock %}
+{% extends "base.html" %}
+
+{% block head_extra %}
+  <title>Submit SQL</title>
+{% endblock %}
 
 {% block content %}
 <div class="login-container">
-    <h>Please submit your assessment here:</h><br><br>
+  <h> Please submit your assessment here: </h>
+  <br><br>
 
-    {% if error %}
+  {% if error %}
     <div class="error">{{ error }}</div>
-    {% endif %}
+  {% endif %}
+  {% if success %}
+    <div class="success">{{ success }}</div>
+  {% endif %}
 
-    <form method="POST" action="/submit-sql">
-        <div>
-            <label for="Assessment">Assessment ID:</label>
-            <input type="text" name="aid" id="Assessment" required>
-        </div>
+  <form method="POST" action="/submit-sql">
+    <div>
+      <label for="Assessment">Assessment ID:</label>
+      <input type="text" name="aid" id="Assessment" required>
+    </div>
+    <div>
+      <label for="Task">Task ID:</label>
+      <input type="text" name="tid" id="Task" required>
+    </div>
+    <div>
+      <label for="Code">Code:</label>
+      <textarea id="Code" name="code" rows="20" cols="80"></textarea>
+    </div>
+    <div>
+      <button type="submit">Submit</button>
+    </div>
+  </form>
 
-        <div>
-            <label for="Task">Task ID:</label>
-            <input type="text" name="tid" id="Task" required>
-        </div>
-
-        <div>
-            <label for="Code">Code:</label>
-            <textarea id="Code" name="code" rows = "40" cols = "80"></textarea>
-        </div>
-
-        <div>
-            <button type="submit">Submit</button>
-        </div>
-    </form>
-    <form method="POST" action="/dashboard">
-        <button type="submit">Return to home page</button>
-    </form>
+  <form method="POST" action="/dashboard">
+    <button type="submit">Return to home page</button>
+  </form>
 </div>
 {% endblock %}
