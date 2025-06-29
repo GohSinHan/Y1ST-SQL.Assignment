@@ -2,12 +2,78 @@
 
 {% block head_extra %}
   <title>Submit SQL</title>
+  <style>
+    .submission-container {
+      max-width: 800px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .submission-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .submission-container form {
+      text-align: left;
+    }
+
+    .submission-container label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .submission-container select,
+    .submission-container textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .submission-container button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .submission-container button:hover {
+      background: #0056b3;
+    }
+
+    .success, .error {
+      text-align: center;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-<div class="login-container">
-  <h> Please submit your assessment here: </h>
-  <br><br>
+<div class="submission-container">
+  <h2>Submit Your SQL Answer</h2>
 
   {% if error %}
     <div class="error">{{ error }}</div>
@@ -16,26 +82,37 @@
     <div class="success">{{ success }}</div>
   {% endif %}
 
+  {% if assessments and tasks %}
   <form method="POST" action="/submit-sql">
-    <div>
-      <label for="Assessment">Assessment ID:</label>
-      <input type="text" name="aid" id="Assessment" required>
-    </div>
-    <div>
-      <label for="Task">Task ID:</label>
-      <input type="text" name="tid" id="Task" required>
-    </div>
-    <div>
-      <label for="Code">Code:</label>
-      <textarea id="Code" name="code" rows="20" cols="80"></textarea>
-    </div>
-    <div>
-      <button type="submit">Submit</button>
-    </div>
+    <label for="Assessment">Assessment:</label>
+    <select name="aid" id="Assessment" required>
+      <option value="">-- Select Assessment --</option>
+      {% for aid, title in assessments %}
+        <option value="{{ aid }}">[{{ aid }}] {{ title }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="Task">Task:</label>
+    <select name="tid" id="Task" required>
+      <option value="">-- Select Task --</option>
+      {% for tid in tasks %}
+        <option value="{{ tid }}">{{ tid }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="Code">SQL Code:</label>
+    <textarea id="Code" name="code" rows="15" placeholder="e.g. SELECT <COLUMN> FROM <SQL_TABLE>;"></textarea>
+
+    <button type="submit">Submit</button>
   </form>
 
-  <form method="POST" action="/dashboard">
-    <button type="submit">Return to home page</button>
-  </form>
+  <div class="back-btn">
+    <form method="GET" action="/view-score">
+      <button type="submit">View My Scores</button>
+    </form>
+  </div>
+  {% else %}
+    <div class="error">No open assessments or tasks available.</div>
+  {% endif %}
 </div>
 {% endblock %}
