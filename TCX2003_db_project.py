@@ -212,7 +212,7 @@ def submit():
             if submit_time > due_date:
                 final_score = round(raw_score * 0.9, 2)  # Apply 10% penalty
             else:
-                final_score = raw_score
+                final_score = round(raw_score, 2)
 
             # Find current attempt number
             cursor.execute("""
@@ -324,51 +324,59 @@ def export_score():
 
 @app.route('/leaderboard')
 def leaderboard():
+    selected_aid = request.args.get('aid')  # This may be None
     try:
         cnx = mysql.connector.connect(option_files=config_path)
-        cursor = cnx.cursor(dictionary=True)
-
-        query = """
-        SELECT s.Student_ID, CONCAT(st.First_Name, ' ', st.Last_Name) AS name,
-               ROUND(AVG(s.Score), 2) AS avg_score
-        FROM Submission s
-        JOIN (
-            SELECT Student_ID, Aid, Tid, MAX(Score) AS MaxScore
-            FROM Submission
-            GROUP BY Student_ID, Aid, Tid
-        ) best
-        ON s.Student_ID = best.Student_ID
-           AND s.Aid = best.Aid
-           AND s.Tid = best.Tid
-           AND s.Score = best.MaxScore
-        JOIN Student st ON s.Student_ID = st.Student_ID
-        GROUP BY s.Student_ID
-        ORDER BY avg_score DESC
-        LIMIT 5;
-        """
-
-        cursor.execute(query)
-        results = cursor.fetchall()
-
-        # Rank calculation with tie handling
+        cursor = cnx.cursor()
+        # Fetch all assessments
+        cursor.execute("SELECT Aid, Title FROM Assessment")
+        assessments = cursor.fetchall()
         leaderboard = []
-        last_score = None
-        rank = 0
-        actual_position = 0
-
-        for row in results:
-            actual_position += 1
-            if row['avg_score'] != last_score:
-                rank = actual_position
-            leaderboard.append({
-                'rank': rank,
-                'name': row['name'],
-                'score': row['avg_score']
-            })
-            last_score = row['avg_score']
-
-        return render_template('leaderboard.html', leaderboard=leaderboard)
-
+        if selected_aid and selected_aid.isdigit():
+            selected_aid = int(selected_aid)
+            cursor = cnx.cursor(dictionary=True)
+            query = """
+                SELECT s.Student_ID, CONCAT(st.First_Name, ' ', st.Last_Name) AS name,
+                       ROUND(AVG(s.Score), 2) AS avg_score
+                FROM Submission s
+                JOIN (
+                    SELECT Student_ID, Aid, Tid, MAX(Score) AS MaxScore
+                    FROM Submission
+                    WHERE Aid = %s
+                    GROUP BY Student_ID, Aid, Tid
+                ) best
+                ON s.Student_ID = best.Student_ID
+                   AND s.Aid = best.Aid
+                   AND s.Tid = best.Tid
+                   AND s.Score = best.MaxScore
+                JOIN Student st ON s.Student_ID = st.Student_ID
+                WHERE s.Aid = %s
+                GROUP BY s.Student_ID
+                ORDER BY avg_score DESC
+                LIMIT 5;
+            """
+            cursor.execute(query, (selected_aid, selected_aid))
+            results = cursor.fetchall()
+            # Ranking logic with ties
+            last_score = None
+            rank = 0
+            actual_position = 0
+            for row in results:
+                actual_position += 1
+                if row['avg_score'] != last_score:
+                    rank = actual_position
+                leaderboard.append({
+                    'rank': rank,
+                    'name': row['name'],
+                    'score': row['avg_score']
+                })
+                last_score = row['avg_score']
+        return render_template(
+            'leaderboard.html',
+            assessments=assessments,
+            leaderboard=leaderboard,
+            selected_aid=selected_aid
+        )
     except Exception as e:
         return f"Error: {e}"
 
