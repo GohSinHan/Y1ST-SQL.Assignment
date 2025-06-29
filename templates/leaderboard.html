@@ -50,6 +50,15 @@
 {% block content %}
   <div class="leaderboard-container">
     <div class="leaderboard-title">🏆 Top 5 Students Leaderboard</div>
+    <form method="GET" action="/leaderboard" style="text-align: center; margin-bottom: 20px;">
+      <label for="aid">Select Assessment:</label>
+      <select name="aid" id="aid" onchange="this.form.submit()">
+        <option value="">-- Select Assessment --</option>
+        {% for aid, title in assessments %}
+          <option value="{{ aid }}" {% if aid == selected_aid %}selected{% endif %}>{{ title }}</option>
+        {% endfor %}
+      </select>
+    </form>
     <table>
       <tr>
         <th>Rank</th>
@@ -74,5 +83,8 @@
       </tr>
       {% endfor %}
     </table>
+    {% if leaderboard|length == 0 and selected_aid %}
+      <p style="text-align:center;">No submissions found for the selected assessment.</p>
+    {% endif %}
   </div>
 {% endblock %}
