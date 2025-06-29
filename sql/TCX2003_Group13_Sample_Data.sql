@@ -1,9 +1,9 @@
 -- Insert data to Student table
 -- NOTE: hashed_dummy_pwd: e9a1b8b1d04e855a86630c40b7d560d0
-INSERT INTO Student (First_Name, Last_Name, Email, Password_Hash) VALUES ('Link', 'Hopper', 'e12567890@u.nus.edu','e9a1b8b1d04e855a86630c40b7d560d0'); 
+INSERT INTO Student (First_Name, Last_Name, Email, Password_Hash) VALUES ('Link', 'Hopper', 'e12567890@u.nus.edu','e9a1b8b1d04e855a86630c40b7d560d0');
 
--- Insert data to Session table. Session value was generated from hashlib in python. 
-INSERT INTO Session VALUES ('05b3c9de-76f2-4da3-a30c-3cf7bb1139ea', 1, '2025-06-26 04:29:41',1); 
+-- Insert data to Session table. Session value was generated from hashlib in python.
+INSERT INTO Session (Session_Token, Student_ID, Login_Time) VALUES ('05b3c9de-76f2-4da3-a30c-3cf7bb1139ea', '2025-06-26 04:29:41',1);
 
 -- Insert data to Assessment table
 INSERT INTO Assessment (Title, Due_Date) VALUES ('Assignment 1', '2025-06-30 20:00:00');
