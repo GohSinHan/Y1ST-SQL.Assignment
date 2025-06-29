@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, jsonify
 import mysql.connector
 import hashlib
 from uuid import uuid4
@@ -192,6 +192,10 @@ def submit():
             cnx = mysql.connector.connect(option_files=config_path)
             cursor = cnx.cursor(buffered=True)
 
+            # Get Assessment ID
+            cursor.execute("SELECT aid, title FROM Assessment")
+            assessments = cursor.fetchall()
+
             # Get model answer and due date
             cursor.execute("""
             SELECT model_answer FROM Tasks
@@ -226,7 +230,7 @@ def submit():
             cnx.commit()
             cnx.close()
 
-            return render_template('submit.html', success="Submission received! Score: " + str(final_score))
+            return render_template('submit.html', success="Submission received! Score: " + str(final_score), assessments=assessments)
 
         except Exception as e:
             return render_template('submit.html', error="Submission failed. Error: " + str(e))
@@ -243,6 +247,19 @@ def submit():
         tasks = cursor.fetchall()
 
         return render_template('submit.html', assessments=assessments, tasks=tasks)
+
+@app.route('/get-tasks/<int:aid>')
+def get_tasks_by_aid(aid):
+    try:
+        cnx = mysql.connector.connect(option_files=config_path)
+        cursor = cnx.cursor()
+        cursor.execute("SELECT Tid FROM Tasks WHERE Aid = %s", (aid,))
+        tasks = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        cnx.close()
+        return jsonify(tasks)
+    except Exception as e:
+        return jsonify([]), 500
 
 @app.route("/view-score")
 def view_score():
