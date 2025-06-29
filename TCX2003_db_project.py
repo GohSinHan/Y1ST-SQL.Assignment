@@ -190,10 +190,13 @@ def submit():
         try:
             # Connect to DB
             cnx = mysql.connector.connect(option_files=config_path)
-            cursor = cnx.cursor()
+            cursor = cnx.cursor(buffered=True)
 
             # Get model answer and due date
-            cursor.execute("SELECT model_answer FROM Tasks WHERE tid = %s", (tid,))
+            cursor.execute("""
+            SELECT model_answer FROM Tasks
+            WHERE tid = %s AND aid = %s
+            """, (tid, aid))
             model_answer = cursor.fetchone()[0]
 
             cursor.execute("SELECT due_date FROM Assessment WHERE aid = %s", (aid,))
@@ -210,7 +213,7 @@ def submit():
             # Find current attempt number
             cursor.execute("""
                 SELECT COUNT(*) FROM Submission
-                WHERE Student_ID = %s AND aid = %s AND tid = %s
+                WHERE Student_ID = %s AND Aid = %s AND Tid = %s
             """, (username, aid, tid))
             attempt_number = cursor.fetchone()[0] + 1
 
