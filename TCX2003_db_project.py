@@ -336,19 +336,21 @@ def leaderboard():
             selected_aid = int(selected_aid)
             cursor = cnx.cursor(dictionary=True)
             query = """
-                SELECT s.Student_ID, CONCAT(st.First_Name, ' ', st.Last_Name) AS name,
-                       ROUND(AVG(s.Score), 2) AS avg_score
+                SELECT
+                  s.Student_ID,
+                  CONCAT(st.First_Name, ' ', st.Last_Name) AS name,
+                  ROUND(AVG(s.Score), 2) AS avg_score
                 FROM Submission s
                 JOIN (
-                    SELECT Student_ID, Aid, Tid, MAX(Score) AS MaxScore
+                    SELECT Student_ID, Aid, Tid, MAX(Submitted_At) AS LatestTime
                     FROM Submission
                     WHERE Aid = %s
                     GROUP BY Student_ID, Aid, Tid
-                ) best
-                ON s.Student_ID = best.Student_ID
-                   AND s.Aid = best.Aid
-                   AND s.Tid = best.Tid
-                   AND s.Score = best.MaxScore
+                ) latest
+                  ON s.Student_ID = latest.Student_ID
+                 AND s.Aid = latest.Aid
+                 AND s.Tid = latest.Tid
+                 AND s.Submitted_At = latest.LatestTime
                 JOIN Student st ON s.Student_ID = st.Student_ID
                 WHERE s.Aid = %s
                 GROUP BY s.Student_ID
